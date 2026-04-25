@@ -1,0 +1,61 @@
+# Version control
+.git/
+.github/
+
+# Dependencies (reinstalled inside container)
+**/node_modules/
+**/.pnp.*
+**/.yarn/cache
+**/.yarn/unplugged
+**/.yarn/build-state.yml
+**/.yarn/install-state.gz
+
+# Build outputs (rebuilt inside container)
+**/.next/
+**/dist/
+**/build/
+**/out/
+
+# TypeScript incremental cache
+**/*.tsbuildinfo
+
+# Test artifacts
+**/coverage/
+**/.nyc_output/
+**/test/
+
+# Environment files
+**/.env
+**/.env.*
+!**/.env.example
+
+# Logs
+**/*.log
+**/logs/
+
+# OS
+**/.DS_Store
+**/Thumbs.db
+
+# Directus runtime data (mounted as volumes)
+directus/database/
+directus/uploads/
+
+# Not needed in any image build
+directus/scripts/
+directus/snapshots/
+directus/permissions/
+terraform/
+docs/
+scripts/
+.playwright-mcp/
+.superpowers/
+
+# Root-level files not needed in builds
+Makefile
+docker-compose.yml
+*.md
+*.png
+*.jpg
+**/.gitignore
+**/.dockerignore

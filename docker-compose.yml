@@ -1,0 +1,50 @@
+services:
+  directus:
+    image: directus/directus:11
+    entrypoint: ["/bin/sh", "/directus/scripts/bootstrap.sh"]
+    ports:
+      - "8055:8055"
+    volumes:
+      - ./directus/database:/directus/database
+      - ./directus/uploads:/directus/uploads
+      - ./directus/snapshots:/directus/snapshots:ro
+      - ./directus/scripts:/directus/scripts:ro
+      - ./directus/permissions:/directus/permissions:ro
+    environment:
+      SECRET: "super-secret-key-change-in-prod"
+      DB_CLIENT: "sqlite3"
+      DB_FILENAME: "/directus/database/data.db"
+      ADMIN_EMAIL: "admin@example.com"
+      ADMIN_PASSWORD: "admin"
+      ADMIN_STATIC_TOKEN: "super-token-dev"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:8055/server/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  backend:
+    build:
+      context: .
+      dockerfile: apps/backend/Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      PORT: 3001
+      DIRECTUS_URL: http://directus:8055
+      DIRECTUS_STATIC_TOKEN: super-token-dev
+    depends_on:
+      directus:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: .
+      dockerfile: apps/frontend/Dockerfile
+      args:
+        NEXT_PUBLIC_NESTJS_URL: http://localhost:3001
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
