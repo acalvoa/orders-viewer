@@ -61,6 +61,10 @@ export function resolveConflicts(orders: OrderDateRange[]): RescheduleProposal[]
       if (proposedStartMs !== startMs || proposedEndMs !== endMs) {
         proposals.push({
           id: order.id,
+          reference: order.reference,
+          product: order.product,
+          quantity: order.quantity,
+          status: order.status,
           currentStartDate: order.startDate,
           currentEndDate: order.endDate,
           proposedStartDate: msToDateString(proposedStartMs),

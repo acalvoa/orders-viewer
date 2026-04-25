@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import { Modal, Button, Typography, Flex } from 'antd';
 import { WarningOutlined } from '@ant-design/icons';
-import type { ProductionOrder, RescheduleProposal } from '@repo/shared';
+import type { RescheduleProposal } from '@repo/shared';
 import { computeConflictMap } from './utils';
 import ProposalCard from './components/ProposalCard';
 
@@ -12,14 +12,13 @@ const { Text } = Typography;
 interface Props {
   open: boolean;
   proposals: RescheduleProposal[];
-  orders: ProductionOrder[];
   applying: boolean;
   onConfirm: () => void;
   onClose: () => void;
 }
 
-export default function RescheduleModal({ open, proposals, orders, applying, onConfirm, onClose }: Props) {
-  const orderMap = useMemo(() => new Map(orders.map((o) => [o.id, o])), [orders]);
+export default function RescheduleModal({ open, proposals, applying, onConfirm, onClose }: Props) {
+  const proposalMap = useMemo(() => new Map(proposals.map((p) => [p.id, p])), [proposals]);
   const conflictMap = useMemo(() => computeConflictMap(proposals), [proposals]);
   const count = proposals.length;
 
@@ -62,9 +61,8 @@ export default function RescheduleModal({ open, proposals, orders, applying, onC
           <ProposalCard
             key={p.id}
             proposal={p}
-            order={orderMap.get(p.id)}
             conflictsWith={conflictMap.get(p.id) ?? []}
-            orderMap={orderMap}
+            proposalMap={proposalMap}
           />
         ))}
       </div>

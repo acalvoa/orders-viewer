@@ -156,7 +156,6 @@ export default function OrdersPage() {
       <RescheduleModal
         open={rescheduleModalOpen}
         proposals={proposals}
-        orders={orders}
         applying={rescheduleMutation.isPending}
         onConfirm={handleRescheduleConfirm}
         onClose={() => setRescheduleModalOpen(false)}
