@@ -164,65 +164,53 @@ Los handlers de dominio de `production-order` no conocen HTTP ni credenciales. D
 
 ### Algoritmo de resolución de conflictos
 
-**Archivos:**
-- `apps/backend/src/modules/production-order/utils/conflict-resolver.util.ts` — lógica pura
-- `apps/backend/src/modules/production-order/utils/date.util.ts` — utilidades de fecha
+**Archivo:** `apps/backend/src/modules/production-order/utils/conflict-resolver.util.ts`
 
-Dos órdenes **conflictan** cuando sus ventanas de tiempo se solapan y estan en estado planned:
+Dos órdenes **conflictan** cuando sus ventanas de tiempo se solapan y ambas tienen `status: 'planned'`:
 
 ```
 startA < endB  &&  endA > startB
 ```
 
-La resolución solo opera sobre órdenes con `status: 'planned'`.
+#### Greedy interval scheduling con búsqueda binaria
 
-#### Fase 1 — Pre-cómputo de timestamps
+El algoritmo ordena todas las órdenes por `createdAt` ascendente (la más antigua = mayor prioridad) y las coloca una a una en un array `placed` de intervalos no solapados mantenido siempre ordenado por `startMs`.
 
-Todas las fechas (`startDate`, `endDate`, `createdAt`) se convierten a milisegundos una sola vez antes del loop de detección, evitando `new Date()` repetidos en el O(n²) interno.
+Para cada orden:
 
-#### Fase 2 — Union-Find con path compression
-
-Se construye un Union-Find sobre los índices del array de órdenes. Para cada par `(i, j)` con el mismo producto y fechas solapadas, se unen sus raíces:
-
-```
-parent[find(i)] = find(j)
-```
-
-El path compression (halving) mantiene el árbol casi plano. Al final, todos los índices con la misma raíz forman un **cluster de conflicto**. Esta estructura captura conflictos transitivos: si A solapa con B y B solapa con C, los tres quedan en el mismo cluster aunque A y C no se solapen directamente.
+1. Intenta colocarla en su `startDate` original.
+2. Usa **búsqueda binaria** (`firstEndingAfter`) para encontrar el primer intervalo ya colocado cuyo `endMs > startDate`. Como `placed` es no solapado y ordenado por `startMs`, los `endMs` también son estrictamente crecientes, lo que hace válida la búsqueda binaria sobre `endMs`.
+3. Si ese intervalo bloquea el slot, empuja el inicio al `endMs` del bloqueador y avanza al siguiente índice (scan lineal). No se necesita segunda búsqueda binaria porque los intervalos ya colocados son no solapados.
+4. Repite hasta encontrar un hueco suficientemente ancho o llegar al final del array.
+5. Inserta el intervalo colocado en `placed` manteniendo el orden (búsqueda binaria + `splice`).
+6. Si las fechas propuestas difieren de las originales, emite un `RescheduleProposal`.
 
 ```
-A ──solapa── B ──solapa── C      →   cluster { A, B, C }
+Ejemplo: A (4d, oldest) · B (5d) · C (4d) todos solapados
+
+  placed tras A:        [──A──]
+  B intenta Jan3 → bloqueado por A → slot: Jan5
+  placed tras B:        [──A──][───B───]
+  C intenta Jan7 → bloqueado por B → slot: Jan10
+  placed tras C:        [──A──][───B───][──C──]
+
+  Proposals: B y C  (A sin cambio, es la más antigua)
 ```
 
-#### Fase 3 — Scheduling secuencial por cluster
+Las órdenes originalmente sin conflicto también pueden desplazarse en cascada si una orden empujada aterriza sobre ellas. Todos los desplazamientos —incluyendo los en cascada— aparecen en las proposals. Una sola ejecución siempre produce un schedule completamente libre de conflictos.
 
-Dentro de cada cluster (grupos con ≥ 2 órdenes):
+La resolución aplica los cambios con un único **bulk PATCH** a Directus (`PATCH /items/production_orders` con array).
 
-1. **Anchor:** se toma el `startDate` más temprano del grupo como punto de inicio del timeline resuelto.
-2. **Prioridad:** las órdenes se ordenan por `createdAt` ascendente — la orden más antigua tiene prioridad y mantiene su slot.
-3. **Cursor:** se avanza `cursor = proposedEnd` tras asignar cada orden, encadenando los slots sin hueco.
-4. **Duración mínima:** si una orden tiene `startDate == endDate` (duración cero), se le asigna 1 día como fallback.
-5. **Filtro de cambios:** solo se emite `RescheduleProposal` para órdenes cuyas fechas propuestas difieren de las actuales. La primera orden del cluster con el slot más temprano típicamente no cambia.
-
-```
-Ejemplo: cluster { A(5 días), B(3 días), C(4 días) } ordenado por createdAt
-
-  anchor = min(startDate del grupo)
-
-  A: [anchor ────── anchor+5d)           → sin cambio si ya estaba ahí
-  B: [anchor+5d ── anchor+8d)            → RescheduleProposal
-  C: [anchor+8d ────── anchor+12d)       → RescheduleProposal
-```
-
-La resolución usa un único **bulk PATCH** a Directus (`PATCH /items/production_orders` con array), no requests secuenciales.
-
-**Complejidad:** O(n²) detección · O(n log n) por group sort · O(1) HTTP round-trips para aplicar.
+**Complejidad:** O(n log n) ordenación · O(n log n) colocación (búsqueda binaria por orden) · O(1) round-trips HTTP.
 
 #### Casos excepcionales
 
-- **Duración cero** — si una orden tiene `startDate === endDate`, se le asigna 1 día mínimo para que el cursor no se quede trabado y las órdenes siguientes del cluster no queden apiladas en el mismo instante.
-- **Cruce de medianoche** — el algoritmo opera en milisegundos sin restricción de horario laboral. Si el cursor llega a las 23:00 y la siguiente orden dura 2 horas, la propuesta quedará a las 01:00 del día siguiente. Las fechas resultantes son correctas, pero pueden caer fuera del turno productivo.
-- **Conflictos en cadena** — si A solapa con B y B solapa con C, las tres se reprograman juntas aunque A y C no se solapen directamente. Sin Union-Find, mover solo a A dejaría un conflicto residual entre B y C.
+| Caso | Comportamiento |
+|---|---|
+| `startDate === endDate` (duración cero) | Se asigna 1 día como duración mínima |
+| `createdAt` idéntico en varias órdenes | El sort es estable: se respeta el orden del array de entrada |
+| Orden que cabe en un hueco intermedio | Se coloca en ese hueco sin desplazarse más |
+| Hueco intermedio demasiado estrecho | Se salta al siguiente hueco automáticamente |
 
 ### Frontend: React Query
 
