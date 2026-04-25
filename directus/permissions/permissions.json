@@ -1,0 +1,6 @@
+[
+  { "collection": "production_orders", "action": "read" },
+  { "collection": "production_orders", "action": "create" },
+  { "collection": "production_orders", "action": "update" },
+  { "collection": "production_orders", "action": "delete" }
+]
