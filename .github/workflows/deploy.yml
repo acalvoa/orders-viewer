@@ -97,7 +97,7 @@ jobs:
       GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
       TF_VAR_gcp_project: ${{ vars.GCP_PROJECT }}
       TF_VAR_gcp_region: ${{ vars.GCP_REGION }}
-      TF_VAR_image_base: ${{ env.IMAGE_BASE }}
+      TF_VAR_image_base: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}
       TF_VAR_image_tag: ${{ github.sha }}
       TF_VAR_directus_secret: ${{ secrets.TF_DIRECTUS_SECRET }}
       TF_VAR_directus_admin_email: ${{ secrets.TF_DIRECTUS_ADMIN_EMAIL }}
@@ -160,7 +160,7 @@ jobs:
       GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
       TF_VAR_gcp_project: ${{ vars.GCP_PROJECT }}
       TF_VAR_gcp_region: ${{ vars.GCP_REGION }}
-      TF_VAR_image_base: ${{ env.IMAGE_BASE }}
+      TF_VAR_image_base: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}
       TF_VAR_image_tag: ${{ github.sha }}
       TF_VAR_directus_secret: ${{ secrets.TF_DIRECTUS_SECRET }}
       TF_VAR_directus_admin_email: ${{ secrets.TF_DIRECTUS_ADMIN_EMAIL }}
