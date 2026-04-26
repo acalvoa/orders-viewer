@@ -5,14 +5,18 @@ import { ProductionOrderDto } from '@modules/production-order/dtos/production-or
 import { UpdateProductionOrderCommand } from '@modules/production-order/commands/declarations/update-production-order.command';
 
 @CommandHandler(UpdateProductionOrderCommand)
-export class UpdateProductionOrderHandler
-  implements ICommandHandler<UpdateProductionOrderCommand, ProductionOrderDto>
-{
+export class UpdateProductionOrderHandler implements ICommandHandler<
+  UpdateProductionOrderCommand,
+  ProductionOrderDto
+> {
   private readonly collection = 'production_orders';
 
   constructor(private readonly commandBus: CommandBus) {}
 
-  async execute({ id, dto }: UpdateProductionOrderCommand): Promise<ProductionOrderDto> {
+  async execute({
+    id,
+    dto,
+  }: UpdateProductionOrderCommand): Promise<ProductionOrderDto> {
     const body: Record<string, unknown> = {};
     if (dto.reference !== undefined) body.reference = dto.reference;
     if (dto.product !== undefined) body.product = dto.product;
@@ -21,9 +25,10 @@ export class UpdateProductionOrderHandler
     if (dto.endDate !== undefined) body.endDate = dto.endDate;
     if (dto.status !== undefined) body.status = dto.status;
 
-    const raw = await this.commandBus.execute<DirectusUpdateItemCommand, DirectusProductionOrder>(
-      new DirectusUpdateItemCommand(this.collection, id, body),
-    );
+    const raw = await this.commandBus.execute<
+      DirectusUpdateItemCommand,
+      DirectusProductionOrder
+    >(new DirectusUpdateItemCommand(this.collection, id, body));
     return ProductionOrderDto.fromDirectus(raw);
   }
 }

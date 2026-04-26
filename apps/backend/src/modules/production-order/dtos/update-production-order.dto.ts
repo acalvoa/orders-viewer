@@ -7,7 +7,10 @@ import {
   IsString,
   Min,
 } from 'class-validator';
-import { type UpdateProductionOrderDto as IUpdate, ProductionOrderStatus } from '@repo/shared';
+import {
+  type UpdateProductionOrderDto as IUpdate,
+  ProductionOrderStatus,
+} from '@repo/shared';
 
 export class UpdateProductionOrderDto implements IUpdate {
   @IsOptional()

@@ -9,9 +9,10 @@ import { DirectusDeleteItemCommand } from '@shared/directus/commands/declaration
 
 @Injectable()
 @CommandHandler(DirectusDeleteItemCommand)
-export class DirectusDeleteItemHandler
-  implements ICommandHandler<DirectusDeleteItemCommand, void>
-{
+export class DirectusDeleteItemHandler implements ICommandHandler<
+  DirectusDeleteItemCommand,
+  void
+> {
   constructor(private readonly http: HttpService) {}
 
   async execute(command: DirectusDeleteItemCommand): Promise<void> {

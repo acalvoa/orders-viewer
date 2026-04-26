@@ -9,9 +9,10 @@ import { DirectusBulkUpdateCommand } from '@shared/directus/commands/declaration
 
 @Injectable()
 @CommandHandler(DirectusBulkUpdateCommand)
-export class DirectusBulkUpdateHandler
-  implements ICommandHandler<DirectusBulkUpdateCommand, void>
-{
+export class DirectusBulkUpdateHandler implements ICommandHandler<
+  DirectusBulkUpdateCommand,
+  void
+> {
   constructor(private readonly http: HttpService) {}
 
   async execute(command: DirectusBulkUpdateCommand): Promise<void> {

@@ -6,7 +6,7 @@ export function insertInterval(intervals: Array<Interval>, startMs: number, endM
 
   while (lo < hi) {
     const mid = (lo + hi) >> 1;
-    if (intervals[mid]!.startMs < startMs) lo = mid + 1;
+    if (intervals[mid].startMs < startMs) lo = mid + 1;
     else hi = mid;
   }
 

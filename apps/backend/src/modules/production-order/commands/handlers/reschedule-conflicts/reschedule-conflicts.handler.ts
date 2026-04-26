@@ -1,5 +1,14 @@
-import { CommandBus, CommandHandler, ICommandHandler, QueryBus } from '@nestjs/cqrs';
-import { DirectusListResponse, DirectusOperator, ProductionOrderStatus } from '@repo/shared';
+import {
+  CommandBus,
+  CommandHandler,
+  ICommandHandler,
+  QueryBus,
+} from '@nestjs/cqrs';
+import {
+  DirectusListResponse,
+  DirectusOperator,
+  ProductionOrderStatus,
+} from '@repo/shared';
 import { DirectusListItemsQuery } from '@shared/directus/queries/declarations/directus-list-items.query';
 import { DirectusBulkUpdateCommand } from '@shared/directus/commands/declarations/directus-bulk-update.command';
 import { DirectusProductionOrder } from '@modules/production-order/interfaces/directus-production-order.interface';
@@ -8,9 +17,10 @@ import { RescheduleConflictsResult } from '@modules/production-order/interfaces/
 import { resolveConflicts } from '@repo/logics';
 
 @CommandHandler(RescheduleConflictsCommand)
-export class RescheduleConflictsHandler
-  implements ICommandHandler<RescheduleConflictsCommand, RescheduleConflictsResult>
-{
+export class RescheduleConflictsHandler implements ICommandHandler<
+  RescheduleConflictsCommand,
+  RescheduleConflictsResult
+> {
   private readonly collection = 'production_orders';
 
   constructor(
@@ -24,7 +34,9 @@ export class RescheduleConflictsHandler
       DirectusListResponse<DirectusProductionOrder>
     >(
       new DirectusListItemsQuery(this.collection, {
-        filter: { status: { [DirectusOperator.EQ]: ProductionOrderStatus.PLANNED } },
+        filter: {
+          status: { [DirectusOperator.EQ]: ProductionOrderStatus.PLANNED },
+        },
         sort: ['createdAt'],
         fields: ['*'],
         limit: -1,
@@ -37,7 +49,11 @@ export class RescheduleConflictsHandler
     await this.commandBus.execute<DirectusBulkUpdateCommand, void>(
       new DirectusBulkUpdateCommand(
         this.collection,
-        proposals.map(p => ({ id: p.id, startDate: p.proposedStartDate, endDate: p.proposedEndDate })),
+        proposals.map((p) => ({
+          id: p.id,
+          startDate: p.proposedStartDate,
+          endDate: p.proposedEndDate,
+        })),
       ),
     );
 

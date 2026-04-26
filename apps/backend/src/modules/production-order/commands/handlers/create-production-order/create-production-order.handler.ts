@@ -6,15 +6,21 @@ import { ProductionOrderDto } from '@modules/production-order/dtos/production-or
 import { CreateProductionOrderCommand } from '@modules/production-order/commands/declarations/create-production-order.command';
 
 @CommandHandler(CreateProductionOrderCommand)
-export class CreateProductionOrderHandler
-  implements ICommandHandler<CreateProductionOrderCommand, ProductionOrderDto>
-{
+export class CreateProductionOrderHandler implements ICommandHandler<
+  CreateProductionOrderCommand,
+  ProductionOrderDto
+> {
   private readonly collection = 'production_orders';
 
   constructor(private readonly commandBus: CommandBus) {}
 
-  async execute({ dto }: CreateProductionOrderCommand): Promise<ProductionOrderDto> {
-    const raw = await this.commandBus.execute<DirectusCreateItemCommand, DirectusProductionOrder>(
+  async execute({
+    dto,
+  }: CreateProductionOrderCommand): Promise<ProductionOrderDto> {
+    const raw = await this.commandBus.execute<
+      DirectusCreateItemCommand,
+      DirectusProductionOrder
+    >(
       new DirectusCreateItemCommand(this.collection, {
         reference: dto.reference,
         product: dto.product,

@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
-import { Modal, Form, Button } from 'antd';
-import dayjs from 'dayjs';
+import { useEffect } from 'react';
+import { Modal, Form } from 'antd';
+import dayjs from '@/lib/dayjs';
 import type { CreateProductionOrderDto } from '@repo/shared';
 import { useOrdersStore } from '@/stores/orders.store';
 import OrderForm, { type FormValues } from '../OrderForm';
@@ -15,21 +15,6 @@ interface Props {
 export default function OrderModal({ loading, onSubmit }: Props) {
   const { modalOpen, editingOrder, closeModal, submitting, setSubmitting } = useOrdersStore();
   const [form] = Form.useForm<FormValues>();
-  const [, forceUpdate] = useState(0);
-
-  const requiredFields = ['reference', 'product', 'quantity', 'startDate', 'endDate'] as const;
-
-  const isSubmitDisabled =
-    !modalOpen ||
-    submitting ||
-    loading ||
-    form.getFieldsError().some(({ errors }) => errors.length > 0) ||
-    requiredFields.some(f => {
-      const val = form.getFieldValue(f);
-      return val === undefined || val === null || val === '';
-    });
-
-  const handleFieldsChange = useCallback(() => forceUpdate(n => n + 1), []);
 
   useEffect(() => {
     if (!modalOpen) return;
@@ -38,15 +23,14 @@ export default function OrderModal({ loading, onSubmit }: Props) {
         reference: editingOrder.reference,
         product: editingOrder.product,
         quantity: editingOrder.quantity,
-        startDate: dayjs(editingOrder.startDate),
-        endDate: dayjs(editingOrder.endDate),
+        startDate: dayjs.utc(editingOrder.startDate).local(),
+        endDate: dayjs.utc(editingOrder.endDate).local(),
         status: editingOrder.status,
       });
     } else {
       form.resetFields();
       form.setFieldValue('status', 'planned');
     }
-    forceUpdate(n => n + 1);
   }, [modalOpen, editingOrder, form]);
 
   const onFinish = (values: FormValues) => {
@@ -54,8 +38,8 @@ export default function OrderModal({ loading, onSubmit }: Props) {
       reference: values.reference,
       product: values.product,
       quantity: values.quantity,
-      startDate: values.startDate.format('YYYY-MM-DDTHH:mm:ss'),
-      endDate: values.endDate.format('YYYY-MM-DDTHH:mm:ss'),
+      startDate: values.startDate.utc().format('YYYY-MM-DDTHH:mm:ss'),
+      endDate: values.endDate.utc().format('YYYY-MM-DDTHH:mm:ss'),
       status: values.status,
     });
   };
@@ -75,25 +59,17 @@ export default function OrderModal({ loading, onSubmit }: Props) {
       open={modalOpen}
       onCancel={closeModal}
       width={620}
-      footer={[
-        <Button key="cancel" onClick={closeModal} disabled={submitting || loading}>
-          Cancelar
-        </Button>,
-        <Button
-          key="submit"
-          type="primary"
-          loading={submitting || loading}
-          disabled={isSubmitDisabled}
-          onClick={() => {
-            setSubmitting(true);
-            form.submit();
-          }}
-        >
-          {editingOrder ? 'Guardar cambios' : 'Crear Orden'}
-        </Button>,
-      ]}
+      footer={null}
     >
-      <OrderForm form={form} onFinish={onFinish} onFieldsChange={handleFieldsChange} />
+      <OrderForm
+        form={form}
+        onFinish={onFinish}
+        onCancel={closeModal}
+        onSubmitClick={() => { setSubmitting(true); form.submit(); }}
+        submitting={submitting}
+        loading={loading}
+        isEditing={!!editingOrder}
+      />
     </Modal>
   );
 }

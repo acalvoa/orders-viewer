@@ -13,16 +13,21 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
+    "lint": "eslint src",
     "test": "jest"
   },
   "dependencies": {
     "@repo/shared": "workspace:*"
   },
   "devDependencies": {
+    "@eslint/js": "^9.18.0",
     "@types/jest": "^30.0.0",
+    "eslint": "^9.18.0",
+    "globals": "^15.0.0",
     "jest": "^30.0.0",
     "ts-jest": "^29.2.5",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.20.0"
   },
   "jest": {
     "moduleFileExtensions": [
@@ -33,7 +38,7 @@
     "rootDir": "src",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
+      "^.+\\.ts$": "ts-jest"
     },
     "moduleNameMapper": {
       "^@repo/shared$": "<rootDir>/../../../packages/shared/src/index.ts",

@@ -1,6 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { QueryBus } from '@nestjs/cqrs';
-import { DirectusListResponse, DirectusOperator, ProductionOrderStatus } from '@repo/shared';
+import {
+  DirectusListResponse,
+  DirectusOperator,
+  ProductionOrderStatus,
+} from '@repo/shared';
 import { DirectusListItemsQuery } from '@shared/directus/queries/declarations/directus-list-items.query';
 import { DirectusProductionOrder } from '@modules/production-order/interfaces/directus-production-order.interface';
 import { GetProductionOrdersQuery } from '@modules/production-order/queries/declarations/get-production-orders.query';
@@ -31,7 +35,9 @@ describe('GetProductionOrdersHandler', () => {
       ],
     }).compile();
 
-    handler = module.get<GetProductionOrdersHandler>(GetProductionOrdersHandler);
+    handler = module.get<GetProductionOrdersHandler>(
+      GetProductionOrdersHandler,
+    );
   });
 
   afterEach(() => jest.clearAllMocks());
@@ -74,7 +80,10 @@ describe('GetProductionOrdersHandler', () => {
       status: { [DirectusOperator.EQ]: ProductionOrderStatus.IN_PROGRESS },
       product: { [DirectusOperator.EQ]: 'Widget A' },
       reference: { [DirectusOperator.CONTAINS]: 'REF' },
-      startDate: { [DirectusOperator.GTE]: '2025-01-01', [DirectusOperator.LTE]: '2025-12-31' },
+      startDate: {
+        [DirectusOperator.GTE]: '2025-01-01',
+        [DirectusOperator.LTE]: '2025-12-31',
+      },
     });
     expect(called.params.page).toBe(2);
     expect(called.params.limit).toBe(10);
@@ -91,7 +100,9 @@ describe('GetProductionOrdersHandler', () => {
   it('should use default pagination and sort when none are provided', async () => {
     queryBus.execute.mockResolvedValue({ data: [], meta: { filter_count: 0 } });
 
-    await handler.execute(new GetProductionOrdersQuery({}, { page: 1, size: 20 }));
+    await handler.execute(
+      new GetProductionOrdersQuery({}, { page: 1, size: 20 }),
+    );
 
     const called = queryBus.execute.mock.calls[0][0] as DirectusListItemsQuery;
     expect(called.params.page).toBe(1);

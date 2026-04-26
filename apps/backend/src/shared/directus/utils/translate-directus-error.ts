@@ -1,10 +1,17 @@
-import { BadGatewayException, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+  BadGatewayException,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { AxiosError } from 'axios';
 import { DirectusErrorResponse } from '@repo/shared';
 
-export function translateDirectusError(error: AxiosError<DirectusErrorResponse>): Error {
+export function translateDirectusError(
+  error: AxiosError<DirectusErrorResponse>,
+): Error {
   const status: number | undefined = error.response?.status;
-  const message: string = error.response?.data?.errors?.[0]?.message ?? error.message;
+  const message: string =
+    error.response?.data?.errors?.[0]?.message ?? error.message;
 
   switch (status) {
     case 404:

@@ -1,7 +1,11 @@
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { DirectusListResponse, ProductionOrderStatus, RescheduleProposal } from '@repo/shared';
+import {
+  DirectusListResponse,
+  ProductionOrderStatus,
+  RescheduleProposal,
+} from '@repo/shared';
 import { ProductionOrderService } from './production-order.service';
 import { DirectusProductionOrder } from '@modules/production-order/interfaces/directus-production-order.interface';
 import { GetProductionOrdersQuery } from '@modules/production-order/queries/declarations/get-production-orders.query';
@@ -63,30 +67,48 @@ describe('ProductionOrderService', () => {
     });
 
     it('should dispatch GetProductionOrdersQuery with domain filters and pagination', async () => {
-      queryBus.execute.mockResolvedValue({ data: [], meta: { filter_count: 0 } });
+      queryBus.execute.mockResolvedValue({
+        data: [],
+        meta: { filter_count: 0 },
+      });
 
-      const filters = { status: ProductionOrderStatus.IN_PROGRESS, reference: 'REF' };
+      const filters = {
+        status: ProductionOrderStatus.IN_PROGRESS,
+        reference: 'REF',
+      };
       const pagination = { page: 2, size: 10 };
 
       await service.list(filters, pagination);
 
-      const called = queryBus.execute.mock.calls[0][0] as GetProductionOrdersQuery;
+      const called = queryBus.execute.mock
+        .calls[0][0] as GetProductionOrdersQuery;
       expect(called).toBeInstanceOf(GetProductionOrdersQuery);
       expect(called.filters).toBe(filters);
       expect(called.pagination).toBe(pagination);
     });
 
     it('should return correct pagination for empty result', async () => {
-      queryBus.execute.mockResolvedValue({ data: [], meta: { filter_count: 0 } });
+      queryBus.execute.mockResolvedValue({
+        data: [],
+        meta: { filter_count: 0 },
+      });
 
       const result = await service.list({}, { page: 1, size: 20 });
 
-      expect(result).toEqual({ data: [], page: 1, size: 20, pages: 1, total: 0 });
+      expect(result).toEqual({
+        data: [],
+        page: 1,
+        size: 20,
+        pages: 1,
+        total: 0,
+      });
     });
 
     it('should propagate errors from the query bus', async () => {
       queryBus.execute.mockRejectedValue(new Error('db error'));
-      await expect(service.list({}, { page: 1, size: 20 })).rejects.toThrow('db error');
+      await expect(service.list({}, { page: 1, size: 20 })).rejects.toThrow(
+        'db error',
+      );
     });
   });
 
@@ -106,14 +128,17 @@ describe('ProductionOrderService', () => {
 
       await service.get('order-1');
 
-      const called = queryBus.execute.mock.calls[0][0] as GetProductionOrderQuery;
+      const called = queryBus.execute.mock
+        .calls[0][0] as GetProductionOrderQuery;
       expect(called).toBeInstanceOf(GetProductionOrderQuery);
       expect(called.id).toBe('order-1');
     });
 
     it('should throw NotFoundException when handler returns null', async () => {
       queryBus.execute.mockResolvedValue(null);
-      await expect(service.get('nonexistent')).rejects.toBeInstanceOf(NotFoundException);
+      await expect(service.get('nonexistent')).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
     });
   });
 
@@ -122,6 +147,10 @@ describe('ProductionOrderService', () => {
       const proposals: RescheduleProposal[] = [
         {
           id: 'order-1',
+          reference: 'ORD-TEST01',
+          product: 'Product A',
+          quantity: 10,
+          status: ProductionOrderStatus.PLANNED,
           currentStartDate: '2025-01-01',
           currentEndDate: '2025-01-10',
           proposedStartDate: '2025-01-11',

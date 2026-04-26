@@ -3,9 +3,10 @@ import { DirectusDeleteItemCommand } from '@shared/directus/commands/declaration
 import { DeleteProductionOrderCommand } from '@modules/production-order/commands/declarations/delete-production-order.command';
 
 @CommandHandler(DeleteProductionOrderCommand)
-export class DeleteProductionOrderHandler
-  implements ICommandHandler<DeleteProductionOrderCommand, void>
-{
+export class DeleteProductionOrderHandler implements ICommandHandler<
+  DeleteProductionOrderCommand,
+  void
+> {
   private readonly collection = 'production_orders';
 
   constructor(private readonly commandBus: CommandBus) {}

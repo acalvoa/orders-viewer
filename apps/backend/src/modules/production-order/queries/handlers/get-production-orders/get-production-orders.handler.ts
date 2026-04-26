@@ -11,13 +11,10 @@ import { DirectusProductionOrder } from '@modules/production-order/interfaces/di
 import { GetProductionOrdersQuery } from '@modules/production-order/queries/declarations/get-production-orders.query';
 
 @QueryHandler(GetProductionOrdersQuery)
-export class GetProductionOrdersHandler
-  implements
-    IQueryHandler<
-      GetProductionOrdersQuery,
-      DirectusListResponse<DirectusProductionOrder>
-    >
-{
+export class GetProductionOrdersHandler implements IQueryHandler<
+  GetProductionOrdersQuery,
+  DirectusListResponse<DirectusProductionOrder>
+> {
   private readonly collection = 'production_orders';
 
   constructor(private readonly queryBus: QueryBus) {}
@@ -48,7 +45,8 @@ export class GetProductionOrdersHandler
 
     if (f.status) filter['status'] = { [DirectusOperator.EQ]: f.status };
     if (f.product) filter['product'] = { [DirectusOperator.EQ]: f.product };
-    if (f.reference) filter['reference'] = { [DirectusOperator.CONTAINS]: f.reference };
+    if (f.reference)
+      filter['reference'] = { [DirectusOperator.CONTAINS]: f.reference };
 
     if (f.startDateFrom ?? f.startDateTo) {
       const cond: DirectusFieldCondition = {};

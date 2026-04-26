@@ -42,6 +42,6 @@ describe('insertInterval', () => {
   it('preserves the endMs value correctly', () => {
     const arr: { startMs: number; endMs: number }[] = [];
     insertInterval(arr, 100, 999);
-    expect(arr[0]!.endMs).toBe(999);
+    expect(arr[0].endMs).toBe(999);
   });
 });

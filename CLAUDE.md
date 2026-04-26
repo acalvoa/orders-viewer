@@ -18,11 +18,13 @@ Sistema de gestión de **órdenes de producción** con detección y resolución 
 │   ├── backend/          # NestJS 11 — API REST (puerto 3001)
 │   └── frontend/         # Next.js 16 — UI (puerto 3000)
 ├── packages/
-│   └── shared/           # Interfaces y enums TypeScript compartidos
+│   ├── shared/           # Interfaces y enums TypeScript compartidos
+│   └── logics/           # Algoritmos de resolución de conflictos (@repo/logics)
 ├── directus/
 │   ├── scripts/          # bootstrap.sh, permissions.sh, token.sh, seed-orders.mjs
 │   ├── snapshots/        # snapshot.yaml — schema versionado de Directus
 │   └── permissions/      # permissions.json — permisos declarativos
+├── terraform/            # Infraestructura Cloud Run (Google Cloud)
 ├── docker-compose.yml    # Levanta directus + backend + frontend
 └── Makefile              # make run | make down | make seed
 ```
@@ -38,11 +40,9 @@ Sistema de gestión de **órdenes de producción** con detección y resolución 
 make run          # docker compose up --build
 make down         # docker compose down
 
-# Solo Directus en Docker + apps en local
-docker compose up directus
+# Apps en local (Directus arranca via yarn dev automáticamente)
 cp apps/backend/.env.example apps/backend/.env
-yarn dev:backend   # NestJS en modo watch — puerto 3001
-yarn dev:frontend  # Next.js dev — puerto 3000
+yarn dev          # docker compose up directus -d + backend watch + frontend dev
 ```
 
 > Directus tarda ~30s la primera vez. Aplica el schema automáticamente via `directus schema apply`.
@@ -54,6 +54,8 @@ make seed                        # 10 órdenes aleatorias
 make seed COUNT=30               # 30 órdenes
 make seed COUNT=30 CONFLICTS=8   # 30 órdenes, 8 con solapamiento intencional
 ```
+
+El seed también puede correr automáticamente al inicializar Directus si `AUTO_SEED=true` (ver sección Directus).
 
 ---
 
@@ -101,7 +103,7 @@ Controller → Service → { QueryBus | CommandBus } → Handler → DirectusHan
 
 ### 3. Capa Directus genérica compartida
 
-Los handlers de `production-order` no conocen HTTP. Despachan comandos/queries genéricos a `src/shared/directus/`, que es la única capa con `HttpService` y credenciales:
+Los handlers de `production-order` no conocen HTTP. Despachan comandos/queries genéricos a `src/shared/directus/`, que es la única capa con `HttpService` y credenciales. El `HttpService` está configurado con `baseURL` y `Authorization` en `DirectusHttpModule` via `HttpModule.registerAsync()`.
 
 | Handler genérico | HTTP |
 |---|---|
@@ -115,6 +117,21 @@ Los handlers de `production-order` no conocen HTTP. Despachan comandos/queries g
 ### 4. `@repo/shared` se resuelve desde fuente en dev
 
 No hay que compilar el paquete shared para desarrollar. TypeScript lo resuelve directamente desde `packages/shared/src/` via path alias en ambos workspaces. Para builds de producción, `yarn build` ya lo compila en orden topológico.
+
+### 5. Lógica de conflictos en `@repo/logics`
+
+El algoritmo de resolución de conflictos vive en `packages/logics/`, separado del backend. Cada función tiene su propia carpeta con test unitario. El backend lo importa via `@repo/logics`.
+
+```
+packages/logics/src/
+├── interfaces/
+│   └── order-date-range.interface.ts
+└── logics/
+    ├── first-ending-after/
+    ├── find-slot/
+    ├── insert-interval/
+    └── resolve-conflicts/
+```
 
 ---
 
@@ -149,10 +166,11 @@ Sigue el patrón existente en `src/modules/production-order/`:
 
 ```typescript
 import { Foo } from '@repo/shared';              // paquete compartido
-import { Bar } from '@modules/production-order/...'; // alias local
+import { Bar } from '@repo/logics';              // lógica de conflictos
+import { Baz } from '@modules/production-order/...'; // alias local
 ```
 
-El alias `@modules` está configurado en `tsconfig.json`.
+Los aliases `@modules` y `@shared` están configurados en `tsconfig.json`.
 
 ---
 
@@ -190,11 +208,11 @@ Sigue el patrón de `hooks/useOrders.ts`. Toda mutación debe invalidar las quer
 
 ### Componentes
 
-Todos los componentes de órdenes viven en `components/orders/`. Cada componente es un directorio con `index.tsx`. Usa **Ant Design 6** para UI y **Tailwind 4** para utilidades de layout.
+Todos los componentes de órdenes viven en `components/Orders/`. Cada componente es un directorio con `index.tsx`. Usa **Ant Design 6** para UI y **Tailwind 4** para utilidades de layout.
 
 ### `NEXT_PUBLIC_NESTJS_URL` es build-time
 
-Esta variable se embebe en el bundle al compilar. Si cambias su valor, necesitas rebuild. Es accedida solo desde el cliente (browser). Si algún día necesitas llamar al backend desde el servidor (SSR/RSC), usa una variable sin el prefijo `NEXT_PUBLIC_`.
+Esta variable se embebe en el bundle al compilar. Si cambias su valor, necesitas rebuild. En producción (Cloud Run) el pipeline la obtiene automáticamente de la URL del backend desplegado.
 
 ---
 
@@ -255,7 +273,18 @@ Dos órdenes **conflictan** si:
 - Token dev: `super-token-dev`
 - API base: `http://localhost:8055/items/production_orders`
 
-El bootstrap (`directus/scripts/bootstrap.sh`) ejecuta en orden: `bootstrap` → `start` → espera health → aplica schema → aplica permisos → configura token.
+El bootstrap (`directus/scripts/bootstrap.sh`) ejecuta en orden: `bootstrap` → `start` → espera health → aplica schema → aplica permisos → configura token → seed condicional.
+
+### Seed automático
+
+Controlado por la variable `AUTO_SEED`:
+
+| Entorno | `AUTO_SEED` | Comportamiento |
+|---|---|---|
+| Dev (`docker-compose`) | `false` (default) | No seedea — DB empieza vacía |
+| Cloud Run (Terraform) | `true` | Seedea 90 órdenes (20 con conflictos) si la DB está vacía |
+
+Para activar el seed en dev, cambia `AUTO_SEED: "true"` en `docker-compose.yml`.
 
 ---
 
@@ -266,3 +295,4 @@ El bootstrap (`directus/scripts/bootstrap.sh`) ejecuta en orden: `bootstrap` →
 - **Invalidación completa** — cualquier mutación que cambie órdenes invalida `['orders']` y `['conflicts-count']`.
 - **Skeletons** — toda sección que cargue datos asincrónicamente necesita skeleton que replique la estructura visual.
 - **Build topológico** — `yarn build` en la raíz respeta el orden: `shared` → `backend` y `frontend` en paralelo.
+- **Componentes en PascalCase** — carpetas de componentes usan PascalCase (`components/Orders/`). Las rutas de Next.js en `app/` usan minúsculas (mapean a URLs).

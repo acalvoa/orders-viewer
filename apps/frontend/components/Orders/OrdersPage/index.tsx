@@ -16,6 +16,7 @@ import OrdersHeader from '../OrdersHeader';
 import StatsStrip from '../StatsStrip';
 import OrdersTable from '../OrdersTable';
 import OrderModal from '../OrderModal';
+import OrderDetailModal from '../OrderDetailModal';
 import RescheduleModal from '../RescheduleModal';
 import EmptyOrders from '../EmptyOrders';
 import ErrorOrders from '../ErrorOrders';
@@ -26,7 +27,7 @@ function errMsg(err: unknown): string {
 
 export default function OrdersPage() {
   const { message, notification } = App.useApp();
-  const { openCreate, openEdit, closeModal, setSubmitting } = useOrdersStore();
+  const { openCreate, openEdit, openView, closeModal, setSubmitting } = useOrdersStore();
   const [rescheduleModalOpen, setRescheduleModalOpen] = useState(false);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
@@ -141,6 +142,7 @@ export default function OrdersPage() {
             pageSize={pageSize}
             onPageChange={handlePageChange}
             onEdit={openEdit}
+            onView={openView}
             onDelete={handleDelete}
             deletingId={deleteMutation.isPending ? deleteMutation.variables : undefined}
             editingId={updateMutation.isPending ? updateMutation.variables?.id : undefined}
@@ -152,6 +154,8 @@ export default function OrdersPage() {
         loading={createMutation.isPending || updateMutation.isPending}
         onSubmit={handleSubmit}
       />
+
+      <OrderDetailModal />
 
       <RescheduleModal
         open={rescheduleModalOpen}

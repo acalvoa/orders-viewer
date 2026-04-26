@@ -7,7 +7,10 @@ import {
   IsString,
   Min,
 } from 'class-validator';
-import { type CreateProductionOrderDto as ICreate, ProductionOrderStatus } from '@repo/shared';
+import {
+  type CreateProductionOrderDto as ICreate,
+  ProductionOrderStatus,
+} from '@repo/shared';
 
 export class CreateProductionOrderDto implements ICreate {
   @IsString()

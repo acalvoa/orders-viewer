@@ -1,5 +1,5 @@
-import dayjs from 'dayjs';
+import dayjs from '@/lib/dayjs';
 
 export function fmtDt(v: string | undefined): string {
-  return v ? dayjs(v).format('DD/MM/YYYY HH:mm') : '—';
+  return v ? dayjs.utc(v).local().format('DD/MM/YYYY HH:mm') : '—';
 }

@@ -1,6 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { DirectusListResponse, OrderStats, Paginated, RescheduleProposal } from '@repo/shared';
+import {
+  DirectusListResponse,
+  OrderStats,
+  Paginated,
+  RescheduleProposal,
+} from '@repo/shared';
 import { GetProductionOrderQuery } from '@modules/production-order/queries/declarations/get-production-order.query';
 import { GetProductionOrdersQuery } from '@modules/production-order/queries/declarations/get-production-orders.query';
 import { SimulateRescheduleQuery } from '@modules/production-order/queries/declarations/simulate-reschedule.query';
@@ -32,7 +37,7 @@ export class ProductionOrderService {
       DirectusListResponse<DirectusProductionOrder>
     >(new GetProductionOrdersQuery(filters, pagination));
 
-    const data = raw.data.map(ProductionOrderDto.fromDirectus);
+    const data = raw.data.map((item) => ProductionOrderDto.fromDirectus(item));
     const total = raw.meta?.filter_count ?? raw.data.length;
     return {
       data,
@@ -54,7 +59,9 @@ export class ProductionOrderService {
   }
 
   getStats(): Promise<OrderStats> {
-    return this.queryBus.execute<GetOrderStatsQuery, OrderStats>(new GetOrderStatsQuery());
+    return this.queryBus.execute<GetOrderStatsQuery, OrderStats>(
+      new GetOrderStatsQuery(),
+    );
   }
 
   simulateReschedule(): Promise<RescheduleProposal[]> {
@@ -71,15 +78,20 @@ export class ProductionOrderService {
   }
 
   create(dto: CreateProductionOrderDto): Promise<ProductionOrderDto> {
-    return this.commandBus.execute<CreateProductionOrderCommand, ProductionOrderDto>(
-      new CreateProductionOrderCommand(dto),
-    );
+    return this.commandBus.execute<
+      CreateProductionOrderCommand,
+      ProductionOrderDto
+    >(new CreateProductionOrderCommand(dto));
   }
 
-  update(id: string, dto: UpdateProductionOrderDto): Promise<ProductionOrderDto> {
-    return this.commandBus.execute<UpdateProductionOrderCommand, ProductionOrderDto>(
-      new UpdateProductionOrderCommand(id, dto),
-    );
+  update(
+    id: string,
+    dto: UpdateProductionOrderDto,
+  ): Promise<ProductionOrderDto> {
+    return this.commandBus.execute<
+      UpdateProductionOrderCommand,
+      ProductionOrderDto
+    >(new UpdateProductionOrderCommand(id, dto));
   }
 
   delete(id: string): Promise<void> {

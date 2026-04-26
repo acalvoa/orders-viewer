@@ -1,7 +1,8 @@
 'use client';
 
 import { memo } from 'react';
-import { Card, Col, Row, Statistic } from 'antd';
+import { Card, Col, Row } from 'antd';
+import Stat from './Stat';
 import StatSkeleton from './Skeleton';
 
 interface Props {
@@ -29,31 +30,31 @@ function StatsStrip({ total, planned, inProgress, loading, conflictsCount, confl
       <Col span={6}>
         <StatCard>
           {loading ? <StatSkeleton /> : (
-            <Statistic title="Total Órdenes" value={total} styles={{ content: { color: '#001450', fontWeight: 700 } }} />
+            <Stat title="Total Órdenes" value={total} className="text-[#001450]" />
           )}
         </StatCard>
       </Col>
       <Col span={6}>
         <StatCard>
           {loading ? <StatSkeleton /> : (
-            <Statistic title="Planned" value={planned} styles={{ content: { color: '#1341CA', fontWeight: 700 } }} />
+            <Stat title="Planned" value={planned} className="text-[#1341CA]" />
           )}
         </StatCard>
       </Col>
       <Col span={6}>
         <StatCard>
           {loading ? <StatSkeleton /> : (
-            <Statistic title="In Progress" value={inProgress} styles={{ content: { color: '#275BF3', fontWeight: 700 } }} />
+            <Stat title="In Progress" value={inProgress} className="text-[#275BF3]" />
           )}
         </StatCard>
       </Col>
       <Col span={6}>
         <StatCard>
           {(loading || conflictsLoading) ? <StatSkeleton /> : (
-            <Statistic
+            <Stat
               title="Con Conflictos"
               value={conflicts}
-              styles={{ content: { color: conflicts > 0 ? '#D92D20' : '#001450', fontWeight: 700 } }}
+              className={conflicts > 0 ? 'text-[#D92D20]' : 'text-[#001450]'}
             />
           )}
         </StatCard>
