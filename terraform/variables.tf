@@ -44,3 +44,9 @@ variable "image_tag" {
   default     = "latest"
 }
 
+variable "backend_port" {
+  description = "Port the backend NestJS server listens on"
+  type        = number
+  default     = 3000
+}
+

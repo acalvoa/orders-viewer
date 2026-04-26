@@ -155,6 +155,8 @@ Los handlers de dominio no conocen HTTP ni credenciales. Despachan comandos/quer
 
 ### Algoritmo de resolución de conflictos
 
+El algoritmo vive en el paquete independiente **`@repo/logics`** (`packages/logics/`), separado del backend. Expone cuatro funciones puras —`resolveConflicts`, `findSlot`, `firstEndingAfter` e `insertInterval`— cada una en su propia carpeta con su test unitario. El backend lo importa via path alias `@repo/logics`; cualquier otro consumidor del monorepo puede hacer lo mismo sin depender de NestJS.
+
 **Archivo:** `apps/backend/src/modules/production-order/utils/conflict-resolver.util.ts`
 
 Dos órdenes **conflictan** cuando sus ventanas de tiempo se solapan y ambas tienen `status: 'planned'`:
