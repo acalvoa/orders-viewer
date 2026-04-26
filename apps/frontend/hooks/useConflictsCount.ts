@@ -10,5 +10,6 @@ export function useConflictsCount() {
     queryFn: () => request<RescheduleProposal[]>('/production-orders/conflicts/reschedules'),
     select: (data) => data.length,
     staleTime: 30_000,
+    refetchInterval: 30_000,
   });
 }

@@ -9,5 +9,6 @@ export function useOrderStats() {
   return useQuery({
     queryKey: ORDER_STATS_KEY,
     queryFn: () => request<OrderStats>('/production-orders/stats'),
+    refetchInterval: 30_000,
   });
 }

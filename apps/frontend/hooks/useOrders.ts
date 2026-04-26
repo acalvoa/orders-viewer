@@ -19,5 +19,6 @@ export function useOrders(params: OrdersParams) {
   return useQuery({
     queryKey: [...ORDERS_QUERY_KEY, params],
     queryFn: () => getOrders(params),
+    refetchInterval: 30_000,
   });
 }
