@@ -35,9 +35,12 @@ module "directus" {
     DB_FILENAME        = "/directus/database/data.db"
     ADMIN_EMAIL        = var.directus_admin_email
     ADMIN_PASSWORD     = var.directus_admin_password
+    ADMIN_TOKEN        = var.directus_static_token
     ADMIN_STATIC_TOKEN = var.directus_static_token
     AUTO_SEED          = "true"
   }
+
+  max_instances = 1
 
   depends_on = [google_project_service.apis]
 }

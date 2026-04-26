@@ -24,3 +24,9 @@ variable "env_vars" {
   type        = map(string)
   default     = {}
 }
+
+variable "max_instances" {
+  description = "Maximum number of container instances"
+  type        = number
+  default     = 1
+}

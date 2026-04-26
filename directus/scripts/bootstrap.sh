@@ -1,7 +1,19 @@
 #!/bin/sh
-set -e
+set -ex
 
 node /directus/cli.js bootstrap
+
+if [ -f "/directus/snapshots/snapshot.yaml" ]; then
+  echo "Applying schema snapshot..."
+  node /directus/cli.js schema apply --yes /directus/snapshots/snapshot.yaml
+  echo "Schema applied."
+fi
+
+if [ -f "/directus/permissions/permissions.json" ]; then
+  echo "Applying permissions to database..."
+  node /directus/scripts/permissions.mjs
+  echo "Permissions applied."
+fi
 
 node /directus/cli.js start &
 DIRECTUS_PID=$!
@@ -12,24 +24,15 @@ until wget -q --spider "http://127.0.0.1:8055/server/health" 2>/dev/null; do
 done
 echo "Directus ready."
 
-if [ -f "/directus/snapshots/snapshot.yaml" ]; then
-  echo "Applying schema snapshot..."
-  node /directus/cli.js schema apply --yes /directus/snapshots/snapshot.yaml && \
-    echo "Schema applied." || \
-    echo "Schema already up to date."
-fi
-
-if [ -f "/directus/permissions/permissions.json" ]; then
-  echo "Setting up permissions..."
-  sh /directus/scripts/permissions.sh && \
-    echo "Permissions done." || \
-    echo "Permissions setup failed (non-fatal)."
-fi
-
 echo "Configuring static token..."
-sh /directus/scripts/token.sh && \
-  echo "Token done." || \
-  echo "Token setup failed (non-fatal)."
+sh /directus/scripts/token.sh
+echo "Token done."
+
+echo "Waiting for token to propagate..."
+until wget -q --spider "http://127.0.0.1:8055/items/production_orders?access_token=${ADMIN_STATIC_TOKEN}" 2>/dev/null; do
+  sleep 1
+done
+echo "Token verified."
 
 if [ "${AUTO_SEED}" = "true" ]; then
   echo "Checking if seed is needed..."

@@ -4,6 +4,10 @@ resource "google_cloud_run_v2_service" "this" {
   ingress  = "INGRESS_TRAFFIC_ALL"
 
   template {
+    scaling {
+      max_instance_count = var.max_instances
+    }
+
     containers {
       image = var.image
 
