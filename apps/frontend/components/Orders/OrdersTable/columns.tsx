@@ -2,7 +2,7 @@ import { Button, Space, Tooltip } from 'antd';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import type { ProductionOrder, ProductionOrderStatus } from '@repo/shared';
-import StatusTag from '@/components/orders/StatusTag';
+import StatusTag from '@/components/Orders/StatusTag';
 import { fmtDt } from '@/utils/format';
 
 export function buildColumns(
@@ -48,7 +48,7 @@ export function buildColumns(
                 size="small"
                 loading={isEditing}
                 icon={!isEditing && <EditOutlined className="text-[#116DFF]" />}
-                onClick={() => onEdit(record)}
+                onClick={(e) => { e.stopPropagation(); onEdit(record); }}
                 disabled={anyDeleting || isEditing}
               />
             </Tooltip>
@@ -59,7 +59,10 @@ export function buildColumns(
                 danger
                 loading={isDeleting}
                 icon={!isDeleting && <DeleteOutlined />}
-                onClick={() => !anyDeleting && onDeleteConfirm(record)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (!anyDeleting) onDeleteConfirm(record);
+                }}
                 disabled={anyDeleting && !isDeleting}
               />
             </Tooltip>

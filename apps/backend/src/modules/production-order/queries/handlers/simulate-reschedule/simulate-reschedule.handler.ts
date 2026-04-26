@@ -1,14 +1,20 @@
 import { IQueryHandler, QueryBus, QueryHandler } from '@nestjs/cqrs';
-import { DirectusListResponse, DirectusOperator, ProductionOrderStatus, RescheduleProposal } from '@repo/shared';
+import {
+  DirectusListResponse,
+  DirectusOperator,
+  ProductionOrderStatus,
+  RescheduleProposal,
+} from '@repo/shared';
 import { DirectusListItemsQuery } from '@shared/directus/queries/declarations/directus-list-items.query';
 import { DirectusProductionOrder } from '@modules/production-order/interfaces/directus-production-order.interface';
 import { SimulateRescheduleQuery } from '@modules/production-order/queries/declarations/simulate-reschedule.query';
 import { resolveConflicts } from '@repo/logics';
 
 @QueryHandler(SimulateRescheduleQuery)
-export class SimulateRescheduleHandler
-  implements IQueryHandler<SimulateRescheduleQuery, RescheduleProposal[]>
-{
+export class SimulateRescheduleHandler implements IQueryHandler<
+  SimulateRescheduleQuery,
+  RescheduleProposal[]
+> {
   private readonly collection = 'production_orders';
 
   constructor(private readonly queryBus: QueryBus) {}
@@ -19,7 +25,9 @@ export class SimulateRescheduleHandler
       DirectusListResponse<DirectusProductionOrder>
     >(
       new DirectusListItemsQuery(this.collection, {
-        filter: { status: { [DirectusOperator.EQ]: ProductionOrderStatus.PLANNED } },
+        filter: {
+          status: { [DirectusOperator.EQ]: ProductionOrderStatus.PLANNED },
+        },
         sort: ['createdAt'],
         fields: ['*'],
         limit: -1,

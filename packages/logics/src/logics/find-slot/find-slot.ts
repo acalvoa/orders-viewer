@@ -7,7 +7,7 @@ export function findSlot(intervals: ReadonlyArray<Interval>, from: number, durat
 
   while (idx < intervals.length) {
     const e = s + duration;
-    const iv = intervals[idx]!;
+    const iv = intervals[idx];
     if (iv.startMs >= e) break;
     s = iv.endMs;
     idx++;

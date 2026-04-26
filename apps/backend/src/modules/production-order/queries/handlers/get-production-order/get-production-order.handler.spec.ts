@@ -40,7 +40,9 @@ describe('GetProductionOrderHandler', () => {
   it('should delegate to DirectusGetItemQuery with collection and id', async () => {
     queryBus.execute.mockResolvedValue(mockRaw);
 
-    const result = await handler.execute(new GetProductionOrderQuery('abc-123'));
+    const result = await handler.execute(
+      new GetProductionOrderQuery('abc-123'),
+    );
 
     expect(result).toEqual(mockRaw);
     const called = queryBus.execute.mock.calls[0][0] as DirectusGetItemQuery;
@@ -53,7 +55,9 @@ describe('GetProductionOrderHandler', () => {
   it('should return null when DirectusGetItemQuery throws NotFoundException', async () => {
     queryBus.execute.mockRejectedValue(new NotFoundException('not found'));
 
-    const result = await handler.execute(new GetProductionOrderQuery('nonexistent'));
+    const result = await handler.execute(
+      new GetProductionOrderQuery('nonexistent'),
+    );
 
     expect(result).toBeNull();
   });

@@ -9,24 +9,25 @@ import { DirectusUpdateItemCommand } from '@shared/directus/commands/declaration
 
 @Injectable()
 @CommandHandler(DirectusUpdateItemCommand)
-export class DirectusUpdateItemHandler
-  implements ICommandHandler<DirectusUpdateItemCommand, unknown>
-{
+export class DirectusUpdateItemHandler implements ICommandHandler<
+  DirectusUpdateItemCommand,
+  unknown
+> {
   constructor(private readonly http: HttpService) {}
 
   async execute(command: DirectusUpdateItemCommand): Promise<unknown> {
-    const res: AxiosResponse<DirectusItemResponse<unknown>> = await firstValueFrom(
-      this.http
-        .patch<DirectusItemResponse<unknown>>(
-          `/items/${encodeURIComponent(command.collection)}/${encodeURIComponent(command.id)}`,
-          command.body,
-        )
-        .pipe(
-          catchError((error: AxiosError<DirectusErrorResponse>) => {
-            throw translateDirectusError(error);
-          }),
-        ),
-    );
+    const res: AxiosResponse<DirectusItemResponse<unknown>> =
+      await firstValueFrom(
+        this.http
+          .patch<
+            DirectusItemResponse<unknown>
+          >(`/items/${encodeURIComponent(command.collection)}/${encodeURIComponent(command.id)}`, command.body)
+          .pipe(
+            catchError((error: AxiosError<DirectusErrorResponse>) => {
+              throw translateDirectusError(error);
+            }),
+          ),
+      );
     return res.data.data;
   }
 }

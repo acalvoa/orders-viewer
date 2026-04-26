@@ -1,0 +1,9 @@
+gcp_project = "your-gcp-project-id"
+gcp_region  = "us-central1"
+image_base  = "ghcr.io/your-org/your-repo"
+
+# Sensitive — set via TF_VAR_* env vars, never commit real values
+# directus_secret          = "..."   # openssl rand -hex 32
+# directus_admin_email     = "admin@example.com"
+# directus_admin_password  = "..."
+# directus_static_token    = "..."   # openssl rand -hex 32

@@ -1,0 +1,32 @@
+name: Terraform Plan
+
+on:
+  pull_request:
+    paths:
+      - 'terraform/**'
+
+jobs:
+  terraform:
+    name: Plan
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: terraform
+    env:
+      GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
+      TF_VAR_gcp_project: ${{ vars.GCP_PROJECT }}
+      TF_VAR_gcp_region: ${{ vars.GCP_REGION }}
+      TF_VAR_image_base: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}
+      TF_VAR_directus_secret: ${{ secrets.TF_DIRECTUS_SECRET }}
+      TF_VAR_directus_admin_email: ${{ secrets.TF_DIRECTUS_ADMIN_EMAIL }}
+      TF_VAR_directus_admin_password: ${{ secrets.TF_DIRECTUS_ADMIN_PASSWORD }}
+      TF_VAR_directus_static_token: ${{ secrets.TF_DIRECTUS_STATIC_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+
+      - run: terraform init
+
+      - run: terraform plan

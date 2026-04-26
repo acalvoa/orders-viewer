@@ -5,9 +5,10 @@ import { DirectusProductionOrder } from '@modules/production-order/interfaces/di
 import { GetProductionOrderQuery } from '@modules/production-order/queries/declarations/get-production-order.query';
 
 @QueryHandler(GetProductionOrderQuery)
-export class GetProductionOrderHandler
-  implements IQueryHandler<GetProductionOrderQuery, DirectusProductionOrder | null>
-{
+export class GetProductionOrderHandler implements IQueryHandler<
+  GetProductionOrderQuery,
+  DirectusProductionOrder | null
+> {
   private readonly collection = 'production_orders';
 
   constructor(private readonly queryBus: QueryBus) {}

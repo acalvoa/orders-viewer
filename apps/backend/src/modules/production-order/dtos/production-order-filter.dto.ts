@@ -1,5 +1,8 @@
 import { IsDateString, IsEnum, IsOptional, IsString } from 'class-validator';
-import { type ProductionOrderFilter, ProductionOrderStatus } from '@repo/shared';
+import {
+  type ProductionOrderFilter,
+  ProductionOrderStatus,
+} from '@repo/shared';
 
 export class ProductionOrderFilterDto implements ProductionOrderFilter {
   @IsOptional()

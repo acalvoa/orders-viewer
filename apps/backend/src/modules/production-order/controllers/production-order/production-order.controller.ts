@@ -1,4 +1,14 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { OrderStats, Paginated, RescheduleProposal } from '@repo/shared';
 import { ListProductionOrdersQueryDto } from '@modules/production-order/dtos/list-production-orders-query.dto';
 import { CreateProductionOrderDto } from '@modules/production-order/dtos/create-production-order.dto';
@@ -11,7 +21,9 @@ export class ProductionOrderController {
   constructor(private readonly service: ProductionOrderService) {}
 
   @Get()
-  list(@Query() query: ListProductionOrdersQueryDto): Promise<Paginated<ProductionOrderDto>> {
+  list(
+    @Query() query: ListProductionOrdersQueryDto,
+  ): Promise<Paginated<ProductionOrderDto>> {
     return this.service.list(query, query);
   }
 

@@ -1,0 +1,110 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [master]
+
+jobs:
+  lint-shared:
+    name: Lint Shared
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: sudo corepack enable && corepack prepare yarn@4.14.1 --activate
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+
+      - run: yarn install --immutable
+
+      - run: yarn workspace @repo/shared lint
+
+  lint-logics:
+    name: Lint Logics
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: sudo corepack enable && corepack prepare yarn@4.14.1 --activate
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+
+      - run: yarn install --immutable
+
+      - run: yarn workspace @repo/logics lint
+
+  lint-backend:
+    name: Lint Backend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: sudo corepack enable && corepack prepare yarn@4.14.1 --activate
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+
+      - run: yarn install --immutable
+
+      - run: yarn workspace @repo/backend lint
+      - run: yarn workspace @repo/backend tsc --noEmit
+
+  lint-frontend:
+    name: Lint Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: sudo corepack enable && corepack prepare yarn@4.14.1 --activate
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+
+      - run: yarn install --immutable
+
+      - run: yarn workspace @repo/frontend lint
+      - run: yarn workspace @repo/frontend tsc --noEmit
+
+  test-backend:
+    name: Test Backend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: sudo corepack enable && corepack prepare yarn@4.14.1 --activate
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+
+      - run: yarn install --immutable
+
+      - run: yarn workspace @repo/backend test
+
+  test-logics:
+    name: Test Logics
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: sudo corepack enable && corepack prepare yarn@4.14.1 --activate
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+
+      - run: yarn install --immutable
+
+      - run: yarn workspace @repo/logics test

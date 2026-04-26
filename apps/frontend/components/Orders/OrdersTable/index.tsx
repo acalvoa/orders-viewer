@@ -15,6 +15,7 @@ interface Props {
   onPageChange: (page: number, pageSize: number) => void;
   onEdit: (order: ProductionOrder) => void;
   onDelete: (id: string) => void;
+  onView: (order: ProductionOrder) => void;
   deletingId?: string;
   editingId?: string;
 }
@@ -28,6 +29,7 @@ function OrdersTable({
   onPageChange,
   onEdit,
   onDelete,
+  onView,
   deletingId,
   editingId,
 }: Props) {
@@ -61,6 +63,7 @@ function OrdersTable({
         columns={columns}
         dataSource={loading ? skeletonData : orders}
         loading={false}
+        onRow={(record) => ({ onClick: () => !loading && onView(record), className: !loading ? 'cursor-pointer' : '' })}
         size="middle"
         className="!bg-white !rounded-lg"
         pagination={{

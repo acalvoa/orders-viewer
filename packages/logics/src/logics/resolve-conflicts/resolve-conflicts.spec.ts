@@ -39,8 +39,8 @@ describe('resolveConflicts', () => {
     ]);
 
     expect(result).toHaveLength(1);
-    expect(result[0]!.id).toBe('b');
-    expect(result[0]!.proposedStartDate).toBe('2025-01-15T08:00:00');
+    expect(result[0].id).toBe('b');
+    expect(result[0].proposedStartDate).toBe('2025-01-15T08:00:00');
   });
 
   it('chains multiple overlapping orders sequentially', () => {
@@ -117,7 +117,7 @@ describe('resolveConflicts', () => {
       order('b', 'Widget-B', '2025-01-01T00:00:00', '2025-01-15T00:00:00'),
     ]);
     expect(result).toHaveLength(1);
-    expect(result[0]!.id).toBe('b');
+    expect(result[0].id).toBe('b');
   });
 });
 

@@ -10,21 +10,26 @@ import { DirectusGetItemQuery } from '@shared/directus/queries/declarations/dire
 
 @Injectable()
 @QueryHandler(DirectusGetItemQuery)
-export class DirectusGetItemHandler implements IQueryHandler<DirectusGetItemQuery, unknown>
-{
+export class DirectusGetItemHandler implements IQueryHandler<
+  DirectusGetItemQuery,
+  unknown
+> {
   constructor(private readonly http: HttpService) {}
 
   async execute(query: DirectusGetItemQuery): Promise<unknown> {
-    const qs = query.fields?.length ? buildDirectusQuery({ fields: query.fields }) : '';
+    const qs = query.fields?.length
+      ? buildDirectusQuery({ fields: query.fields })
+      : '';
     const path = `/items/${encodeURIComponent(query.collection)}/${encodeURIComponent(query.id)}${qs ? `?${qs}` : ''}`;
 
-    const res: AxiosResponse<DirectusItemResponse<unknown>> = await firstValueFrom(
-      this.http.get<DirectusItemResponse<unknown>>(path).pipe(
-        catchError((error: AxiosError<DirectusErrorResponse>) => {
-          throw translateDirectusError(error);
-        }),
-      ),
-    );
+    const res: AxiosResponse<DirectusItemResponse<unknown>> =
+      await firstValueFrom(
+        this.http.get<DirectusItemResponse<unknown>>(path).pipe(
+          catchError((error: AxiosError<DirectusErrorResponse>) => {
+            throw translateDirectusError(error);
+          }),
+        ),
+      );
     return res.data.data;
   }
 }

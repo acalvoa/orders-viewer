@@ -1,19 +1,34 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { HttpService } from '@nestjs/axios';
-import { BadGatewayException, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+  BadGatewayException,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { of, throwError } from 'rxjs';
 import { AxiosError, AxiosResponse } from 'axios';
 import { DirectusListResponse, DirectusErrorResponse } from '@repo/shared';
 import { DirectusListItemsHandler } from './directus-list-items.handler';
 import { DirectusListItemsQuery } from '@shared/directus/queries/declarations/directus-list-items.query';
 
-interface MockItem { id: string }
-
-function mockResponse<T>(data: T): AxiosResponse<T> {
-  return { data, status: 200, statusText: 'OK', headers: {}, config: {} as AxiosResponse['config'] };
+interface MockItem {
+  id: string;
 }
 
-function mockAxiosError(status: number, message: string): AxiosError<DirectusErrorResponse> {
+function mockResponse<T>(data: T): AxiosResponse<T> {
+  return {
+    data,
+    status: 200,
+    statusText: 'OK',
+    headers: {},
+    config: {} as AxiosResponse['config'],
+  };
+}
+
+function mockAxiosError(
+  status: number,
+  message: string,
+): AxiosError<DirectusErrorResponse> {
   const err = new AxiosError<DirectusErrorResponse>(message);
   err.response = {
     status,
@@ -70,19 +85,25 @@ describe('DirectusListItemsHandler', () => {
   });
 
   it('should translate 404 to NotFoundException', async () => {
-    httpService.get.mockReturnValue(throwError(() => mockAxiosError(404, 'not found')));
+    httpService.get.mockReturnValue(
+      throwError(() => mockAxiosError(404, 'not found')),
+    );
     await expect(
       handler.execute(new DirectusListItemsQuery('col', {})),
     ).rejects.toBeInstanceOf(NotFoundException);
   });
 
   it('should translate 401 to UnauthorizedException and 500 to BadGatewayException', async () => {
-    httpService.get.mockReturnValue(throwError(() => mockAxiosError(401, 'unauthorized')));
+    httpService.get.mockReturnValue(
+      throwError(() => mockAxiosError(401, 'unauthorized')),
+    );
     await expect(
       handler.execute(new DirectusListItemsQuery('col', {})),
     ).rejects.toBeInstanceOf(UnauthorizedException);
 
-    httpService.get.mockReturnValue(throwError(() => mockAxiosError(500, 'server error')));
+    httpService.get.mockReturnValue(
+      throwError(() => mockAxiosError(500, 'server error')),
+    );
     await expect(
       handler.execute(new DirectusListItemsQuery('col', {})),
     ).rejects.toBeInstanceOf(BadGatewayException);

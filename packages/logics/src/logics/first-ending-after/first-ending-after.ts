@@ -6,7 +6,7 @@ export function firstEndingAfter(intervals: ReadonlyArray<Interval>, start: numb
 
   while (lo < hi) {
     const mid = (lo + hi) >> 1;
-    if (intervals[mid]!.endMs <= start) lo = mid + 1;
+    if (intervals[mid].endMs <= start) lo = mid + 1;
     else hi = mid;
   }
 

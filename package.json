@@ -7,10 +7,12 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "yarn workspaces foreach --parallel --interlaced run dev",
+    "dev": "docker compose up directus -d && yarn workspaces foreach --all --parallel --interlaced --include '@repo/backend' --include '@repo/frontend' run dev",
     "dev:frontend": "yarn workspace @repo/frontend run dev",
     "dev:backend": "yarn workspace @repo/backend run start:dev",
-    "build": "yarn workspaces foreach --topological-dev run build",
-    "start": "yarn workspaces foreach --parallel --interlaced run start"
+    "build": "yarn workspaces foreach --all --topological-dev --include '@repo/backend' --include '@repo/frontend' run build",
+    "start": "yarn workspaces foreach --all --parallel --interlaced --include '@repo/backend' --include '@repo/frontend' run start",
+    "lint": "yarn workspaces foreach --all --parallel --interlaced run lint",
+    "test": "yarn workspaces foreach --all --parallel --interlaced run test"
   }
 }

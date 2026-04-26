@@ -1,4 +1,4 @@
-import { Form, Input, InputNumber, DatePicker, Select, Row, Col } from 'antd';
+import { Form, Input, InputNumber, DatePicker, Select, Row, Col, Button } from 'antd';
 import type { FormInstance } from 'antd';
 import dayjs from 'dayjs';
 import { ProductionOrderStatus } from '@repo/shared';
@@ -19,15 +19,21 @@ export interface FormValues {
   status: ProductionOrderStatus;
 }
 
+const requiredFields = ['reference', 'product', 'quantity', 'startDate', 'endDate'] as const;
+
 interface Props {
   form: FormInstance<FormValues>;
   onFinish: (values: FormValues) => void;
-  onFieldsChange?: () => void;
+  onCancel: () => void;
+  onSubmitClick: () => void;
+  submitting: boolean;
+  loading: boolean;
+  isEditing: boolean;
 }
 
-export default function OrderForm({ form, onFinish, onFieldsChange }: Props) {
+export default function OrderForm({ form, onFinish, onCancel, onSubmitClick, submitting, loading, isEditing }: Props) {
   return (
-    <Form form={form} layout="vertical" onFinish={onFinish} onFieldsChange={onFieldsChange} className="mt-5">
+    <Form form={form} layout="vertical" onFinish={onFinish} className="mt-5">
       <Form.Item
         label="Referencia"
         name="reference"
@@ -91,6 +97,24 @@ export default function OrderForm({ form, onFinish, onFieldsChange }: Props) {
           </Col>
         </Row>
       </div>
+
+      <Form.Item shouldUpdate>
+        {() => {
+          const hasErrors = form.getFieldsError().some(({ errors }) => errors.length > 0);
+          const missingValues = requiredFields.some(f => !form.getFieldValue(f));
+          const disabled = submitting || loading || hasErrors || missingValues;
+          return (
+            <div className="flex justify-end gap-2 pt-2">
+              <Button onClick={onCancel} disabled={submitting || loading}>
+                Cancelar
+              </Button>
+              <Button type="primary" loading={submitting || loading} disabled={disabled} onClick={onSubmitClick}>
+                {isEditing ? 'Guardar cambios' : 'Crear Orden'}
+              </Button>
+            </div>
+          );
+        }}
+      </Form.Item>
     </Form>
   );
 }

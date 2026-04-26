@@ -17,16 +17,18 @@ Sistema de gestión de órdenes de producción con detección y resolución auto
 ```
 .
 ├── apps/
-│   ├── backend/          # NestJS API (puerto 3001)
-│   └── frontend/         # Next.js (puerto 3000 dev / 3002 si hay conflicto)
+│   ├── backend/          # NestJS 11 — API REST (puerto 3001)
+│   └── frontend/         # Next.js 16 — UI (puerto 3000)
 ├── packages/
-│   └── shared/           # Interfaces y enums compartidos
+│   ├── shared/           # Interfaces y enums TypeScript compartidos
+│   └── logics/           # Algoritmos de resolución de conflictos (@repo/logics)
 ├── directus/
-│   ├── scripts/          # bootstrap.sh · permissions.sh · token.sh · seed-orders.mjs
-│   ├── snapshots/        # snapshot.yaml — schema de Directus versionado
+│   ├── scripts/          # bootstrap.sh, permissions.sh, token.sh, seed-orders.mjs
+│   ├── snapshots/        # snapshot.yaml — schema versionado de Directus
 │   └── permissions/      # permissions.json — permisos declarativos
-├── docker-compose.yml
-└── Makefile
+├── terraform/            # Infraestructura Cloud Run (Google Cloud)
+├── docker-compose.yml    # Levanta directus + backend + frontend
+└── Makefile              # make run | make down | make seed
 ```
 
 ## Requisitos
@@ -138,18 +140,7 @@ Controller
        └─ CommandBus → CommandHandler → DirectusCreateItemHandler / DirectusUpdateItemHandler / …
 ```
 
-Los handlers de dominio de `production-order` no conocen HTTP ni credenciales. Despachan comandos/queries Directus genéricos hacia la capa compartida `src/shared/directus/`, que es la única que tiene `HttpService` y el token.
-
-**Queries disponibles:**
-- `GetProductionOrdersQuery` — lista paginada con filtros
-- `GetProductionOrderQuery` — orden por ID
-- `SimulateRescheduleQuery` — propuestas de re-scheduling sin aplicar
-
-**Commands disponibles:**
-- `CreateProductionOrderCommand`
-- `UpdateProductionOrderCommand`
-- `DeleteProductionOrderCommand`
-- `RescheduleConflictsCommand` — aplica propuestas de re-scheduling en bulk
+Los handlers de dominio no conocen HTTP ni credenciales. Despachan comandos/queries genéricos a `src/shared/directus/`, única capa con `HttpService`. El `HttpService` está configurado con `baseURL` y `Authorization` via `DirectusHttpModule` (`HttpModule.registerAsync()`).
 
 **Capa Directus compartida (`src/shared/directus/`):**
 

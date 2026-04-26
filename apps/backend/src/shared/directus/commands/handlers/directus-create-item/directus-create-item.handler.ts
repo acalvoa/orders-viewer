@@ -9,24 +9,25 @@ import { DirectusCreateItemCommand } from '@shared/directus/commands/declaration
 
 @Injectable()
 @CommandHandler(DirectusCreateItemCommand)
-export class DirectusCreateItemHandler
-  implements ICommandHandler<DirectusCreateItemCommand, unknown>
-{
+export class DirectusCreateItemHandler implements ICommandHandler<
+  DirectusCreateItemCommand,
+  unknown
+> {
   constructor(private readonly http: HttpService) {}
 
   async execute(command: DirectusCreateItemCommand): Promise<unknown> {
-    const res: AxiosResponse<DirectusItemResponse<unknown>> = await firstValueFrom(
-      this.http
-        .post<DirectusItemResponse<unknown>>(
-          `/items/${encodeURIComponent(command.collection)}`,
-          command.body,
-        )
-        .pipe(
-          catchError((error: AxiosError<DirectusErrorResponse>) => {
-            throw translateDirectusError(error);
-          }),
-        ),
-    );
+    const res: AxiosResponse<DirectusItemResponse<unknown>> =
+      await firstValueFrom(
+        this.http
+          .post<
+            DirectusItemResponse<unknown>
+          >(`/items/${encodeURIComponent(command.collection)}`, command.body)
+          .pipe(
+            catchError((error: AxiosError<DirectusErrorResponse>) => {
+              throw translateDirectusError(error);
+            }),
+          ),
+      );
     return res.data.data;
   }
 }

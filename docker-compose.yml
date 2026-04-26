@@ -17,6 +17,7 @@ services:
       ADMIN_EMAIL: "admin@example.com"
       ADMIN_PASSWORD: "admin"
       ADMIN_STATIC_TOKEN: "super-token-dev"
+      AUTO_SEED: "true"
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:8055/server/health"]
       interval: 10s
