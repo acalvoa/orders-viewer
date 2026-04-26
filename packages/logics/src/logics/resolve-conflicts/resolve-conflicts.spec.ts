@@ -1,5 +1,5 @@
 import { ProductionOrderStatus } from '@repo/shared';
-import { resolveConflicts } from './conflict-resolver.util';
+import { resolveConflicts } from './resolve-conflicts';
 
 const order = (
   id: string,

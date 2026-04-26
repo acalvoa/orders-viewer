@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { HttpModule } from '@nestjs/axios';
+import { DirectusHttpModule } from '@shared/directus/directus-http.module';
 import { DirectusGetItemHandler } from './directus-get-item.handler';
 
 @Module({
-  imports: [HttpModule],
+  imports: [DirectusHttpModule],
   providers: [DirectusGetItemHandler],
   exports: [DirectusGetItemHandler],
 })

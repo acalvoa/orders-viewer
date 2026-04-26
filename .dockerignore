@@ -46,10 +46,6 @@ directus/scripts/
 directus/snapshots/
 directus/permissions/
 terraform/
-docs/
-scripts/
-.playwright-mcp/
-.superpowers/
 
 # Root-level files not needed in builds
 Makefile

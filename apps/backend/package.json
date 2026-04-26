@@ -26,6 +26,7 @@
     "@nestjs/core": "^11.0.1",
     "@nestjs/cqrs": "^11.0.0",
     "@nestjs/platform-express": "^11.0.1",
+    "@repo/logics": "workspace:*",
     "@repo/shared": "workspace:*",
     "axios": "^1.7.9",
     "class-transformer": "^0.5.1",
@@ -71,6 +72,7 @@
       "^.+\\.(t|j)s$": "ts-jest"
     },
     "moduleNameMapper": {
+      "^@repo/logics$": "<rootDir>/../../../packages/logics/src/index.ts",
       "^@repo/shared$": "<rootDir>/../../../packages/shared/src/index.ts",
       "^@repo/shared/(.*)$": "<rootDir>/../../../packages/shared/src/$1",
       "^@modules/(.*)$": "<rootDir>/modules/$1",

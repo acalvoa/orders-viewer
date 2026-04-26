@@ -2586,6 +2586,7 @@ __metadata:
     "@nestjs/platform-express": "npm:^11.0.1"
     "@nestjs/schematics": "npm:^11.0.0"
     "@nestjs/testing": "npm:^11.0.1"
+    "@repo/logics": "workspace:*"
     "@repo/shared": "workspace:*"
     "@types/express": "npm:^5.0.0"
     "@types/jest": "npm:^30.0.0"
@@ -2637,6 +2638,18 @@ __metadata:
     tailwindcss: "npm:^4"
     typescript: "npm:^5"
     zustand: "npm:^5.0.12"
+  languageName: unknown
+  linkType: soft
+
+"@repo/logics@workspace:*, @repo/logics@workspace:packages/logics":
+  version: 0.0.0-use.local
+  resolution: "@repo/logics@workspace:packages/logics"
+  dependencies:
+    "@repo/shared": "workspace:*"
+    "@types/jest": "npm:^30.0.0"
+    jest: "npm:^30.0.0"
+    ts-jest: "npm:^29.2.5"
+    typescript: "npm:^5.7.3"
   languageName: unknown
   linkType: soft
 

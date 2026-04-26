@@ -13,8 +13,7 @@ export class CreateProductionOrderHandler
 
   constructor(private readonly commandBus: CommandBus) {}
 
-  async execute(command: CreateProductionOrderCommand): Promise<ProductionOrderDto> {
-    const { dto } = command;
+  async execute({ dto }: CreateProductionOrderCommand): Promise<ProductionOrderDto> {
     const raw = await this.commandBus.execute<DirectusCreateItemCommand, DirectusProductionOrder>(
       new DirectusCreateItemCommand(this.collection, {
         reference: dto.reference,

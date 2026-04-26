@@ -4,11 +4,12 @@ import { DirectusListItemsQuery } from '@shared/directus/queries/declarations/di
 import { DirectusBulkUpdateCommand } from '@shared/directus/commands/declarations/directus-bulk-update.command';
 import { DirectusProductionOrder } from '@modules/production-order/interfaces/directus-production-order.interface';
 import { RescheduleConflictsCommand } from '@modules/production-order/commands/declarations/reschedule-conflicts.command';
-import { resolveConflicts } from '@modules/production-order/utils/conflict-resolver.util';
+import { RescheduleConflictsResult } from '@modules/production-order/interfaces/reschedule-conflicts-result.interface';
+import { resolveConflicts } from '@repo/logics';
 
 @CommandHandler(RescheduleConflictsCommand)
 export class RescheduleConflictsHandler
-  implements ICommandHandler<RescheduleConflictsCommand, { rescheduled: number }>
+  implements ICommandHandler<RescheduleConflictsCommand, RescheduleConflictsResult>
 {
   private readonly collection = 'production_orders';
 
@@ -17,7 +18,7 @@ export class RescheduleConflictsHandler
     private readonly commandBus: CommandBus,
   ) {}
 
-  async execute(): Promise<{ rescheduled: number }> {
+  async execute(): Promise<RescheduleConflictsResult> {
     const result = await this.queryBus.execute<
       DirectusListItemsQuery,
       DirectusListResponse<DirectusProductionOrder>

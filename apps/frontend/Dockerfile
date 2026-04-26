@@ -11,6 +11,7 @@ WORKDIR /app
 
 COPY package.json yarn.lock .yarnrc.yml ./
 COPY packages/shared/package.json ./packages/shared/
+COPY packages/logics/package.json ./packages/logics/
 COPY apps/backend/package.json ./apps/backend/
 COPY apps/frontend/package.json ./apps/frontend/
 

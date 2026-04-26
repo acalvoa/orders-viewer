@@ -1,11 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { HttpService } from '@nestjs/axios';
-import { ConfigService } from '@nestjs/config';
 import { AxiosError } from 'axios';
 import { catchError, firstValueFrom } from 'rxjs';
 import { DirectusErrorResponse } from '@repo/shared';
-import { directusAuthHeaders, translateDirectusError } from '@shared/directus/directus-http.utils';
+import { translateDirectusError } from '@shared/directus/utils/translate-directus-error';
 import { DirectusDeleteItemCommand } from '@shared/directus/commands/declarations/directus-delete-item.command';
 
 @Injectable()
@@ -13,27 +12,16 @@ import { DirectusDeleteItemCommand } from '@shared/directus/commands/declaration
 export class DirectusDeleteItemHandler
   implements ICommandHandler<DirectusDeleteItemCommand, void>
 {
-  private readonly baseUrl: string;
-  private readonly token: string;
-
-  constructor(
-    private readonly http: HttpService,
-    config: ConfigService,
-  ) {
-    this.baseUrl = config.getOrThrow<string>('DIRECTUS_URL');
-    this.token = config.getOrThrow<string>('DIRECTUS_STATIC_TOKEN');
-  }
+  constructor(private readonly http: HttpService) {}
 
   async execute(command: DirectusDeleteItemCommand): Promise<void> {
-    const url = `${this.baseUrl}/items/${encodeURIComponent(command.collection)}/${encodeURIComponent(command.id)}`;
+    const path = `/items/${encodeURIComponent(command.collection)}/${encodeURIComponent(command.id)}`;
     await firstValueFrom(
-      this.http
-        .delete(url, { headers: directusAuthHeaders(this.token) })
-        .pipe(
-          catchError((error: AxiosError<DirectusErrorResponse>) => {
-            throw translateDirectusError(error);
-          }),
-        ),
+      this.http.delete(path).pipe(
+        catchError((error: AxiosError<DirectusErrorResponse>) => {
+          throw translateDirectusError(error);
+        }),
+      ),
     );
   }
 }

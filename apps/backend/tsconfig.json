@@ -14,6 +14,7 @@
     "outDir": "./dist",
     "baseUrl": "./",
     "paths": {
+      "@repo/logics": ["../../packages/logics/src/index.ts"],
       "@repo/shared": ["../../packages/shared/src/index.ts"],
       "@repo/shared/*": ["../../packages/shared/src/*"],
       "@modules/*": ["src/modules/*"],

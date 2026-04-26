@@ -3,7 +3,7 @@ import { DirectusListResponse, DirectusOperator, ProductionOrderStatus, Reschedu
 import { DirectusListItemsQuery } from '@shared/directus/queries/declarations/directus-list-items.query';
 import { DirectusProductionOrder } from '@modules/production-order/interfaces/directus-production-order.interface';
 import { SimulateRescheduleQuery } from '@modules/production-order/queries/declarations/simulate-reschedule.query';
-import { resolveConflicts } from '@modules/production-order/utils/conflict-resolver.util';
+import { resolveConflicts } from '@repo/logics';
 
 @QueryHandler(SimulateRescheduleQuery)
 export class SimulateRescheduleHandler

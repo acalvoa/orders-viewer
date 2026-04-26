@@ -12,8 +12,7 @@ export class UpdateProductionOrderHandler
 
   constructor(private readonly commandBus: CommandBus) {}
 
-  async execute(command: UpdateProductionOrderCommand): Promise<ProductionOrderDto> {
-    const { id, dto } = command;
+  async execute({ id, dto }: UpdateProductionOrderCommand): Promise<ProductionOrderDto> {
     const body: Record<string, unknown> = {};
     if (dto.reference !== undefined) body.reference = dto.reference;
     if (dto.product !== undefined) body.product = dto.product;
