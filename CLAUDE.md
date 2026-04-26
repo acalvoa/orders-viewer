@@ -21,7 +21,7 @@ Sistema de gestión de **órdenes de producción** con detección y resolución 
 │   ├── shared/           # Interfaces y enums TypeScript compartidos
 │   └── logics/           # Algoritmos de resolución de conflictos (@repo/logics)
 ├── directus/
-│   ├── scripts/          # bootstrap.sh, permissions.sh, token.sh, seed-orders.mjs
+│   ├── scripts/          # bootstrap.sh, permissions.mjs, token.sh, seed-orders.mjs
 │   ├── snapshots/        # snapshot.yaml — schema versionado de Directus
 │   └── permissions/      # permissions.json — permisos declarativos
 ├── terraform/            # Infraestructura Cloud Run (Google Cloud)

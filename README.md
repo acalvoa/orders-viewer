@@ -2,6 +2,14 @@
 
 Sistema de gestión de órdenes de producción con detección y resolución automática de conflictos de scheduling.
 
+## Demo
+
+El sistema se encuentra funcionando con un demo efimero en la siguiente URL:
+
+El sistema ejecuta scripts de seed y permisos. Estos tardan levemente en ejecutarse, por lo que una vez se inicialice dejar pasar un minuto para que la app tenga datos de forma segura. Como el demo es efimero despues de 10-15 minutos el contenedor se destruira. Una vez destruido el contenedor se volvera a crear con una nueva base de datos. Enjoy :)
+
+https://frontend-749681714166.us-central1.run.app
+
 ## Stack
 
 | Capa | Tecnología |
@@ -23,7 +31,7 @@ Sistema de gestión de órdenes de producción con detección y resolución auto
 │   ├── shared/           # Interfaces y enums TypeScript compartidos
 │   └── logics/           # Algoritmos de resolución de conflictos (@repo/logics)
 ├── directus/
-│   ├── scripts/          # bootstrap.sh, permissions.sh, token.sh, seed-orders.mjs
+│   ├── scripts/          # bootstrap.sh, permissions.mjs, token.sh, seed-orders.mjs
 │   ├── snapshots/        # snapshot.yaml — schema versionado de Directus
 │   └── permissions/      # permissions.json — permisos declarativos
 ├── terraform/            # Infraestructura Cloud Run (Google Cloud)
@@ -287,4 +295,4 @@ El archivo `directus/snapshots/snapshot.yaml` se aplica automáticamente en cada
 
 ### Permisos
 
-Los permisos de la política admin están declarados en `directus/permissions/permissions.json` y se aplican via `directus/scripts/permissions.sh` durante el bootstrap. Para añadir permisos a nuevas colecciones, edita ese archivo.
+Los permisos de la política admin están declarados en `directus/permissions/permissions.json` y se aplican via `directus/scripts/permissions.mjs` durante el bootstrap. Para añadir permisos a nuevas colecciones, edita ese archivo.
